@@ -1,0 +1,71 @@
+---
+title: "01_CreateObject"
+author: "Louis Sanglier"
+date: "2025-02-27"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Import
+
+```{r}
+library(Seurat)
+```
+
+## Loading Data
+
+```{r}
+# Sample directories
+setwd("C:/Users/louis/Desktop/Stage/scrnaseq")
+sample_dirs <- list.dirs(path = "C:/Users/louis/Desktop/Stage/scrnaseq_final/count", recursive = FALSE)  # Paths to filtered count directories
+filtered_dirs <- file.path(sample_dirs, "Solo.out/Gene/filtered/")  # Paths to the filtered directories of each sample
+```
+
+## Output directory
+
+```{r}
+# Define output directory for saving RDS files
+output_dir <- "C:/Users/louis/Desktop/Stage/scrnaseq_final/output/01_CreateObject"
+if (!dir.exists(output_dir)) {
+  dir.create(output_dir, recursive = TRUE)  # Création récursive des dossiers manquants
+}
+
+```
+
+## Create Seurat Object
+
+```{r}
+# Loop to load each sample as a separate Seurat object
+for (dir in filtered_dirs) {
+  # Check the directory path format
+  print(dir)  # To verify that 'dir' is a valid path
+  
+  counts <- ReadMtx(
+    mtx = file.path(dir, "matrix.mtx"),
+    features = file.path(dir, "features.tsv"),
+    cells = file.path(dir, "barcodes.tsv"),
+    feature.column = 2  # Use the second column of features.tsv as gene names
+  )
+  
+  # Extract the sample name from the folder path between "count" and "Solo.out"
+  sample_name <- sub("^.*/count/(.*)/Solo.out.*$", "\\1", dir)
+  
+  seurat_obj <- CreateSeuratObject(counts = counts, project = sample_name)
+  
+  # Explicitly set the 'orig.ident' field
+  seurat_obj@meta.data$orig.ident <- sample_name
+  
+  # Modify the barcode names by adding the sample name as a prefix
+  new_barcodes <- paste(sample_name, colnames(seurat_obj), sep = "_")
+  colnames(seurat_obj) <- new_barcodes
+  
+  # Create a dynamic name for the Seurat object
+  assign(paste0("seurat_", sample_name), seurat_obj)
+  # Save each Seurat object as an RDS file
+  saveRDS(seurat_obj, file = file.path(output_dir, paste0("seurat_", sample_name, ".rds")))
+}
+```
+
