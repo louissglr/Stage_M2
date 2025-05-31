@@ -35,7 +35,7 @@ seurat_combined[["RNA"]] <- JoinLayers(seurat_combined[["RNA"]])
 
 cols_to_keep <- !grepl("^RNA_snn", colnames(seurat_combined@meta.data))
 seurat_combined@meta.data <- seurat_combined@meta.data[, cols_to_keep]
-
+seurat_combined <- FindVariableFeatures(seurat_combined)
 seurat_combined <- RunPCA(seurat_combined, verbose = FALSE)
 
 pdf(pdf_path, width = 10, height = 8)

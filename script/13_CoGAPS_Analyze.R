@@ -30,7 +30,7 @@ library(knitr)
 library(ComplexHeatmap)
 library(grid)
 library(openxlsx)
-cogaps <- readRDS("C:/Users/louis/Desktop/Stage/scrnaseq_final/output/09_AddCoGAPSToSeurat/seurat_cogaps_res_10p.rds")
+cogaps <- readRDS("C:/Users/louis/Desktop/Stage/scrnaseq_final/output/09_AddCoGAPSToSeurat/seurat_cogaps_res_2p.rds")
 signature_imsig <- read.table("C:/Users/louis/Desktop/Stage/scrnaseq/signatures/ImSig2_mouse.txt", header = FALSE, stringsAsFactors = FALSE)$V1
 DefaultAssay(cogaps) <- "RNA" 
 cogaps <- AddModuleScore(
